@@ -1,6 +1,6 @@
 Name: Ajadi Ayooluwa
 Matric Number: 22CG031817
-Live URL: https://zof_solver_22cg031817.onrender.com
+Live URL: https://zof-solver-vnxk.onrender.com
 GitHub Repository: https://github.com/Ajaay-gd/zof_solver
 
 
