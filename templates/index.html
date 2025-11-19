@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero of Functions Solver</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            text-align: center;
+        }
+
+        .result-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🔬 Zero of Functions Solver</h1>
+            <p class="subtitle">Numerical Methods for Root Finding</p>
+
+            <div class="form-group">
+                <label for="method">Numerical Method</label>
+                <select id="method" onchange="updateInputs()">
+                    <option value="bisection">Bisection Method</option>
+                    <option value="regulaFalsi">Regula Falsi Method</option>
+                    <option value="secant">Secant Method</option>
+                    <option value="newtonRaphson">Newton-Raphson Method</option>
+                    <option value="fixedPoint">Fixed Point Iteration</option>
+                    <option value="modifiedSecant">Modified Secant Method</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="equation">Equation <span id="equationLabel">(f(x) = 0)</span></label>
+                <input type="text" id="equation" placeholder="e.g., x**3 - x - 2" value="x**3 - x - 2">
+                <small style="color: #666;">Use x as variable, ** for power (e.g., x**2 for x²)</small>
+            </div>
+
+            <div class="grid" id="parameterInputs">
+                <!-- Dynamic inputs will be inserted here -->
+            </div>
+
+            <div class="grid">
+                <div class="form-group">
+                    <label for="tolerance">Tolerance</label>
+                    <input type="number" id="tolerance" step="any" value="0.0001">
+                </div>
+
+                <div class="form-group">
+                    <label for="maxIterations">Maximum Iterations</label>
+                    <input type="number" id="maxIterations" value="50">
+                </div>
+            </div>
+
+            <button onclick="solve()">🚀 Solve</button>
+        </div>
+
+        <div id="loading" class="card hidden loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px;">Computing...</p>
+        </div>
+
+        <div id="results" class="hidden"></div>
+    </div>
+
+    <script>
+        function updateInputs() {
+            const method = document.getElementById('method').value;
+            const container = document.getElementById('parameterInputs');
+            const equationLabel = document.getElementById('equationLabel');
+            
+            if (method === 'fixedPoint') {
+                equationLabel.textContent = '(as g(x) where x = g(x))';
+            } else {
+                equationLabel.textContent = '(f(x) =0)';
+            }
+            
+            let html = '';
+            
+            if (method === 'bisection' || method === 'regulaFalsi') {
+                html = `
+                    <div class="form-group">
+                        <label for="a">a (lower bound)</label>
+                        <input type="number" id="a" step="any" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="b">b (upper bound)</label>
+                        <input type="number" id="b" step="any" value="2">
+                    </div>
+                `;
+            } else if (method === 'secant') {
+                html = `
+                    <div class="form-group">
+                        <label for="x0">x₀ (first guess)</label>
+                        <input type="number" id="x0" step="any" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="x1">x₁ (second guess)</label>
+                        <input type="number" id="x1" step="any" value="2">
+                    </div>
+                `;
+            } else if (method === 'newtonRaphson' || method === 'fixedPoint') {
+                html = `
+                    <div class="form-group">
+                        <label for="x0">x₀ (initial guess)</label>
+                        <input type="number" id="x0" step="any" value="1.5">
+                    </div>
+                `;
+            } else if (method === 'modifiedSecant') {
+                html = `
+                    <div class="form-group">
+                        <label for="x0">x₀ (initial guess)</label>
+                        <input type="number" id="x0" step="any" value="1.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="delta">δ (delta)</label>
+                        <input type="number" id="delta" step="any" value="0.01">
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        async function solve() {
+            const method = document.getElementById('method').value;
+            const equation = document.getElementById('equation').value;
+            const tolerance = document.getElementById('tolerance').value;
+            const maxIterations = document.getElementById('maxIterations').value;
+            
+            const data = {
+                method,
+                equation,
+                tolerance,
+                maxIterations
+            };
+            
+            // Add method-specific parameters
+            if (method === 'bisection' || method === 'regulaFalsi') {
+                data.a = document.getElementById('a').value;
+                data.b = document.getElementById('b').value;
+            } else if (method === 'secant') {
+                data.x0 = document.getElementById('x0').value;
+                data.x1 = document.getElementById('x1').value;
+            } else if (method === 'newtonRaphson' || method === 'fixedPoint') {
+                data.x0 = document.getElementById('x0').value;
+            } else if (method === 'modifiedSecant') {
+                data.x0 = document.getElementById('x0').value;
+                data.delta = document.getElementById('delta').value;
+            }
+            
+            // Show loading
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            
+            try {
+                const response = await fetch('/solve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                displayResults(result);
+            } catch (error) {
+                displayError('Error: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        function displayResults(result) {
+            const container = document.getElementById('results');
+            
+            if (result.error) {
+                displayError(result.error);
+                return;
+            }
+            
+            let html = `
+                <div class="card">
+                    <div class="result-card">
+                        <h2 style="margin-bottom: 20px;">📊 Results</h2>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="result-label">Estimated Root</div>
+                                <div class="result-value">${result.root.toFixed(8)}</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Final Error</div>
+                                <div class="result-value">${result.finalError.toFixed(8)}</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Iterations</div>
+                                <div class="result-value">${result.iterations.length}</div>
+                            </div>
+                        </div>
+                        ${result.converged !== undefined ? 
+                            `<p style="margin-top: 20px; font-size: 18px; text-align: center;">
+                                ${result.converged ? '✅ Converged' : '⚠️ Max iterations reached'}
+                            </p>` : ''}
+                    </div>
+                    
+                    <h3 style="margin-top: 30px; margin-bottom: 15px; color: #333;">Iteration Details</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Iteration</th>
+                                    ${Object.keys(result.iterations[0])
+                                        .filter(key => key !== 'iteration')
+                                        .map(key => `<th>${key}</th>`)
+                                        .join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${result.iterations.map(iter => `
+                                    <tr>
+                                        <td>${iter.iteration}</td>
+                                        ${Object.entries(iter)
+                                            .filter(([key]) => key !== 'iteration')
+                                            .map(([, value]) => `<td>${value}</td>`)
+                                            .join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            container.classList.remove('hidden');
+        }
+
+        function displayError(message) {
+            const container = document.getElementById('results');
+            container.innerHTML = `
+                <div class="card">
+                    <div class="error">
+                        <strong>❌ Error:</strong> ${message}
+                    </div>
+                </div>
+            `;
+            container.classList.remove('hidden');
+        }
+
+        // Initialize inputs on page load
+        updateInputs();
+    </script>
+</body>
+</html>
